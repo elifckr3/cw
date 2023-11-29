@@ -4,6 +4,8 @@ import dotenv
 import pandas as pd
 import requests
 import time
+import atexit
+import glob
 
 import os
 from flask import Flask, request, render_template, jsonify, redirect, url_for, session
@@ -225,6 +227,18 @@ def create_email():
 
     return render_template('email_template.html', recipient_email=recipient_email, body=body, subject=subject)
 
+
+# Define the cleanup function
+def cleanup_temporary_dataframes():
+    files = glob.glob('dataframes/*.pkl')
+    for f in files:
+        try:
+            os.remove(f)
+        except OSError as e:
+            print(f"Error deleting file {f}: {e.strerror}")
+
+# Register the cleanup function to be called on app exit
+atexit.register(cleanup_temporary_dataframes)
 
 @app.route('/email')
 def email_page():
