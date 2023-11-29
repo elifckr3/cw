@@ -43,6 +43,11 @@
     <!-- The heading is dynamically set based on the 'title' variable -->
     <h1>{{ title }}</h1>
     <a onclick="history.back()" class="back-arrow">←</a>
+    <div>
+    <button type="button" onclick="selectAll()">Select All</button>
+    <button type="button" onclick="unselectAll()">Unselect All</button>
+</div>
+
     <table>
         <thead>
             <tr>
@@ -64,7 +69,9 @@
             <tr>
                  <td>
 
-                <input type="checkbox" name="selected" value="{{ property['id'] | default(property['contact_email_1']) }}">
+            <input type="checkbox" name="selected" value="{{ property['id'] | default(property['contact_email_1']) }}">
+
+
             </td>
                 <td>
 
@@ -92,6 +99,22 @@
         function goBack() {
           window.history.back();
         }
+
+    function selectAll() {
+        // This function will iterate over all checkboxes and check them
+        var checkboxes = document.getElementsByName('selected'); // Use the name 'selected' to match the HTML
+        for(var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = true;
+        }
+    }
+
+    function unselectAll() {
+        // This function will iterate over all checkboxes and uncheck them
+        var checkboxes = document.getElementsByName('selected'); // Use the name 'selected' to match the HTML
+        for(var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = false;
+        }
+    }
     </script>
 </body>
 </html>
