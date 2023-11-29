@@ -5,3 +5,4 @@ werkzeug~=3.0.1
 fuzzywuzzy~=0.18.0
 msal~=1.25.0
 python-dotenv~=1.0.0
+gunicorn 21.2.0
