@@ -1,56 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Upload CSV File</title>
     <style>
         body {
-            font-size: 18px;
-            /* Adjusts the default font size for the body */
+            font-size: 18px; /* Adjusts the default font size for the body */
         }
-
         h1 {
-            font-size: 24px;
-            /* Larger font size for headings */
+            font-size: 24px; /* Larger font size for headings */
         }
-
         input[type="file"],
         input[type="submit"],
         select,
-        label,
-        #file-name-display {
-            font-size: 16px;
-            /* Adjusts the font size for form elements and labels */
-            margin-top: 10px;
-            /* Adds spacing above form elements */
+        label {
+            font-size: 16px; /* Adjusts the font size for form elements and labels */
+            margin-top: 10px; /* Adds spacing above form elements */
         }
-
         form {
-            margin-top: 20px;
-            /* Adds spacing above each form */
+            margin-top: 20px; /* Adds spacing above each form */
         }
-
         #owner-occupier-question p,
         #owner-occupier-question label {
-            margin: 5px 0;
-            /* Adds vertical spacing around paragraph and label elements */
+            margin: 5px 0; /* Adds vertical spacing around paragraph and label elements */
         }
-
         label {
             font-size: 16px;
         }
+        #file-name-display {
+            font-weight: bold;
+            padding-left: 10px;
+        }
     </style>
 </head>
-
 <body>
     <h1>Upload a CSV File</h1>
-    <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+    <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" id="upload-form">
+        <label for="file">Choose File:</label>
         <input type="file" name="file" id="file" onchange="updateFileNameDisplay()">
+        <span id="file-name-display"></span>
         <input type="submit" value="Upload">
-        <!-- The following span has been removed to eliminate the second "No file chosen" text -->
     </form>
-
 
     <div style="margin-top: 20px;">
         <form action="{{ url_for('filter_by_category') }}" method="post">
@@ -59,7 +49,6 @@
                 {% for category in categories %}
                 <option value="{{ category }}">{{ category }}</option>
                 {% endfor %}
-
             </select>
             <input type="hidden" name="df_path" value="{{ df_file }}">
 
@@ -103,58 +92,37 @@
             }
         }
 
+        // Restore the owner occupier question state and filename display on page load
         document.addEventListener('DOMContentLoaded', function () {
-            // Restore the owner occupier question state
             restoreOwnerOccupierQuestion();
 
-            // Attempt to restore the filename display if there's a filename in local storage
             var filename = localStorage.getItem('uploadedFileName');
             if (filename) {
                 document.getElementById('file-name-display').textContent = filename;
             }
         });
 
-        function storeFileName() {
+        // Update the file name display when a file is chosen
+        function updateFileNameDisplay() {
             var fileInput = document.getElementById('file');
+            var fileNameDisplay = document.getElementById('file-name-display');
+
             if (fileInput.files.length > 0) {
                 var filename = fileInput.files[0].name;
+                fileNameDisplay.textContent = filename;
                 localStorage.setItem('uploadedFileName', filename);
             }
         }
 
-        function updateFileNameDisplay() {
+        // Attach the event listener to the specific upload form
+        document.getElementById('upload-form').addEventListener('submit', function () {
             var fileInput = document.getElementById('file');
-            // Since we removed the span, we don't need to update anything here anymore.
-            // If you want to show the file name elsewhere, update the relevant element.
-        }
-
-        document.querySelector('form').addEventListener('submit', storeFileName);
-
-
-        // Function to handle file selection and store filename in local storage
-        document.getElementById('file').addEventListener('change', function () {
-            var filename = this.files[0].name;
-            document.getElementById('file-name-display').textContent = filename;
-            localStorage.setItem('uploadedFileName', filename);
-        });
-
-        // Function to execute when the upload form is submitted
-        document.querySelector('form').addEventListener('submit', function (event) {
-            var fileInput = document.getElementById('file');
-            // Check if a file has been selected
-            if (fileInput.files.length > 0) {
-                var filename = fileInput.files[0].name;
-                // Store the filename in local storage
-                localStorage.setItem('uploadedFileName', filename);
-            } else {
-                // If no file is selected, prevent the form from submitting
+            if (fileInput.files.length === 0) {
+                // Prevent form submission if no file is selected
                 event.preventDefault();
-                localStorage.removeItem('uploadedFileName');
                 document.getElementById('file-name-display').textContent = 'No file chosen';
             }
         });
     </script>
-
 </body>
-
 </html>

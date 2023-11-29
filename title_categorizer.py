@@ -18,14 +18,16 @@ def categorize_title(title):
         return 'President'
     elif 'member' in title_lower:
         return 'Member'
+    # This will match any title with 'owner' in it, including 'Owner/Principal'
+    elif 'owner' in title_lower:
+        return 'Owner'
+    # This will only match titles that have 'principal' without 'owner'
     elif 'principal' in title_lower:
         return 'Principal'
     elif 'treasurer' in title_lower:
         return 'Treasurer'
     elif 'senior' in title_lower:
         return 'Senior Executive'
-    elif 'owner' in title_lower:
-        return 'Owner'
     elif 'director' in title_lower:
         return 'Director'
     elif 'administrator' in title_lower:
