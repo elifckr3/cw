@@ -105,7 +105,7 @@ def upload_file():
             df['contact_category'] = df['contact_title'].apply(categorize_title)
 
             # Create a list of unique categories for the dropdown menu
-            categories = sorted(df['contact_category'].astype(str).unique())
+            categories = ['VIEW ALL'] + sorted(df['contact_category'].astype(str).unique())
 
             # Save the DataFrame to a temporary file
             timestamp = int(time.time())
