@@ -6,50 +6,89 @@
     <style>
         body {
             position: relative;
+            font-family: Arial, sans-serif;
         }
         .back-arrow {
             font-size: 24px;
             cursor: pointer;
-            top: 0;
-            left: 0;
             color: red;
             padding: 10px;
-
         }
         .email-content {
             margin-top: 25px;
             font-size: 18px;
         }
-        .draft-button {
+        .draft-button, .edit-button {
             padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
+            margin-top: 20px;
             border: none;
             cursor: pointer;
-            margin-top: 20px;
+        }
+        .draft-button {
+            background-color: #007bff;
+            color: white;
         }
         .draft-button:hover {
             background-color: #0056b3;
         }
-        /* Additional styles */
+        .edit-button {
+            background-color: #28a745;
+            color: white;
+        }
+        .edit-button:hover {
+            background-color: #218838;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <!-- Back arrow to go to the previous page -->
-    <div class="back-arrow" onclick="window.history.back();">&#x2190; Back</div>
+    <div class="back-arrow" onclick="goBack();">&#x2190; Back</div>
     <div class="email-content">
-        <!-- Your email content here -->
-        <p>{{ body | safe }}</p>
+        <!-- Email content that can be edited -->
+        <textarea id="emailBody" style="display: none;">{{ body }}</textarea>
+        <div id="emailBodyText">{{ body | safe }}</div>
         <p>Sending to: {{ recipient_email }}</p>
-
-        <form action="/send-email" method="post">
+        <!-- Form for sending email -->
+        <form id="sendEmailForm" action="/send-email" method="post">
             <input type="hidden" name="recipient_email" value="{{ recipient_email }}">
             <input type="hidden" name="subject" value="{{ subject }}">
-            <input type="hidden" name="body" value="{{ body | safe }}">
+            <input type="hidden" name="body" id="hiddenBody" value="{{ body | safe }}">
+            <button type="button" class="edit-button" onclick="toggleEdit()">Edit</button>
             <button type="submit" class="draft-button">Send Email</button>
         </form>
-        </form>
     </div>
-    <!-- Additional content or scripts if needed -->
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+
+        function toggleEdit() {
+            var emailBody = document.getElementById('emailBody');
+            var emailBodyText = document.getElementById('emailBodyText');
+            var hiddenBody = document.getElementById('hiddenBody');
+
+            if (emailBody.style.display === "none") {
+                emailBody.style.display = "block";
+                emailBodyText.style.display = "none";
+            } else {
+                emailBody.style.display = "none";
+                emailBodyText.style.display = "block";
+                emailBodyText.innerHTML = emailBody.value;
+                hiddenBody.value = emailBody.value;
+            }
+        }
+
+        document.getElementById('sendEmailForm').addEventListener('submit', function() {
+            var emailBody = document.getElementById('emailBody').value;
+            document.getElementById('hiddenBody').value = emailBody; // Update the hidden input to ensure the edited content is sent
+        });
+    </script>
 </body>
 </html>
