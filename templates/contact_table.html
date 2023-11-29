@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- The title is dynamically set based on the 'title' variable -->
+    <title>{{ title }}</title>
+    <style>
+        table {
+            border-collapse: collapse; /* This ensures that the border is single */
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black; /* This sets a single line border for each cell */
+            padding: 8px;
+            text-align: left;
+        }
+        /* Additional styles can be added here */
+        .email-button {
+            display: block;
+            padding: 5px 10px;
+            margin: auto;
+            background-color: #4CAF50; /* Green background */
+            color: white; /* White text */
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        .email-button:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+        .back-arrow {
+            font-size: 34px;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 5px 10px;
+            margin-bottom: 10px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <!-- The heading is dynamically set based on the 'title' variable -->
+    <h1>{{ title }}</h1>
+    <a onclick="history.back()" class="back-arrow">←</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>Property Link</th>
+                <th>Owner Profile Link</th>
+                <th>Address Full</th>
+                <th>Property Type</th>
+                <th>Contact Name</th>
+                <th>Reported Mailing Address</th>
+                <th>Contact Title</th>
+                <th>Contact Phone</th>
+                <th>Contact Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for property in properties %}
+            <tr>
+                <td>
+                    <!-- Wrapping the button in a form to submit the request -->
+                    <form action="{{ url_for('create_email') }}" method="post">
+                        <input type="hidden" name="address" value="{{ property['address_full'] }}">
+                        <input type="hidden" name="full_name" value="{{ property['contact_name'] }}">
+                         <input type="hidden" name="contact_email" value="{{ property['contact_email_1'] | default('') }}">
+                        <input type="submit" value="Create Email">
+                    </form>
+                </td>
+                <td><a href="{{ property['property_link'] }}">Property Link</a></td>
+                <td><a href="{{ property['owner_profile_link'] }}">Profile Link</a></td>
+                <td>{{ property['address_full'] }}</td>
+                <td>{{ property['property_type'] }}</td>
+                <td>{{ property['contact_name'] }}</td>
+                <td>{{ property['reported_mailing_address_full'] | default('N/A') }}</td>
+                <td>{{ property['contact_title'] }}</td>
+                <td>{{ property['contact_phone_1'] | default('N/A') }}</td>
+                <td>{{ property['contact_email_1'] | default('N/A') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+  <script>
+        function goBack() {
+          window.history.back();
+        }
+    </script>
+</body>
+</html>

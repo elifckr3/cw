@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload CSV File</title>
+       <style>
+        body {
+            font-size: 18px; /* Adjusts the default font size for the body */
+        }
+        h1 {
+            font-size: 24px; /* Larger font size for headings */
+        }
+        input[type="file"],
+        input[type="submit"],
+        select,
+        label,
+        #file-name-display {
+            font-size: 16px; /* Adjusts the font size for form elements and labels */
+            margin-top: 10px; /* Adds spacing above form elements */
+        }
+        form {
+            margin-top: 20px; /* Adds spacing above each form */
+        }
+        #owner-occupier-question p,
+        #owner-occupier-question label {
+            margin: 5px 0; /* Adds vertical spacing around paragraph and label elements */
+        }
+        label{
+            font-size: 16px;
+        }
+
+
+
+    </style>
+</head>
+<body>
+    <h1>Upload a CSV File</h1>
+    <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" id="file" onchange="updateFileNameDisplay()">
+        <input type="submit" value="Upload">
+        <!-- The following span has been removed to eliminate the second "No file chosen" text -->
+    </form>
+
+
+    <div style="margin-top: 20px;">
+        <form action="{{ url_for('filter_by_category') }}" method="post">
+            <label for="category">Choose a category:</label>
+            <select name="category" id="category" onchange="toggleOwnerOccupierQuestion()">
+                {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+                <option value="VIEW ALL">VIEW ALL</option>  <!-- Add this line -->
+            </select>
+            <input type="hidden" name="df_path" value="{{ df_file }}">
+
+             <div id="owner-occupier-question" style="display: none; margin-top: 20px;">
+                <p>Is the owner occupier?</p>
+                <input type="radio" id="owner_occupier_yes" name="owner_occupier" value="yes">
+                <label for="owner_occupier_yes">Yes</label><br>
+                <input type="radio" id="owner_occupier_no" name="owner_occupier" value="no">
+                <label for="owner_occupier_no">No</label><br>
+                <input type="radio" id="owner_occupier_all" name="owner_occupier" value="all" checked>
+                <label for="owner_occupier_all">All</label><br>
+            </div>
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+
+<script>
+    function toggleOwnerOccupierQuestion() {
+        var categorySelect = document.getElementById('category');
+        var ownerOccupierQuestion = document.getElementById('owner-occupier-question');
+        var selectedCategory = categorySelect.value;
+
+        var shouldDisplayQuestion = selectedCategory === 'Owner' || selectedCategory === 'Owner/Principal';
+        ownerOccupierQuestion.style.display = shouldDisplayQuestion ? 'block' : 'none';
+
+        localStorage.setItem('selectedCategory', selectedCategory);
+        localStorage.setItem('ownerOccupierDisplay', shouldDisplayQuestion ? 'block' : 'none');
+    }
+
+    function restoreOwnerOccupierQuestion() {
+        var ownerOccupierQuestion = document.getElementById('owner-occupier-question');
+        var displayState = localStorage.getItem('ownerOccupierDisplay');
+        var selectedCategory = localStorage.getItem('selectedCategory');
+
+        if (selectedCategory) {
+            document.getElementById('category').value = selectedCategory;
+            toggleOwnerOccupierQuestion(); // This will handle displaying the question if needed
+        } else if (displayState) {
+            ownerOccupierQuestion.style.display = displayState;
+        }
+    }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        // Restore the owner occupier question state
+        restoreOwnerOccupierQuestion();
+
+        // Attempt to restore the filename display if there's a filename in local storage
+        var filename = localStorage.getItem('uploadedFileName');
+        if (filename) {
+            document.getElementById('file-name-display').textContent = filename;
+        }
+    });
+
+    function storeFileName() {
+        var fileInput = document.getElementById('file');
+        if (fileInput.files.length > 0) {
+            var filename = fileInput.files[0].name;
+            localStorage.setItem('uploadedFileName', filename);
+        }
+    }
+
+       function updateFileNameDisplay() {
+        var fileInput = document.getElementById('file');
+        // Since we removed the span, we don't need to update anything here anymore.
+        // If you want to show the file name elsewhere, update the relevant element.
+    }
+
+    document.querySelector('form').addEventListener('submit', storeFileName);
+
+
+     // Function to handle file selection and store filename in local storage
+    document.getElementById('file').addEventListener('change', function() {
+        var filename = this.files[0].name;
+        document.getElementById('file-name-display').textContent = filename;
+        localStorage.setItem('uploadedFileName', filename);
+    });
+
+    // Function to execute when the upload form is submitted
+    document.querySelector('form').addEventListener('submit', function(event) {
+        var fileInput = document.getElementById('file');
+        // Check if a file has been selected
+        if (fileInput.files.length > 0) {
+            var filename = fileInput.files[0].name;
+            // Store the filename in local storage
+            localStorage.setItem('uploadedFileName', filename);
+        } else {
+            // If no file is selected, prevent the form from submitting
+            event.preventDefault();
+            localStorage.removeItem('uploadedFileName');
+            document.getElementById('file-name-display').textContent = 'No file chosen';
+        }
+    });
+</script>
+
+</body>
+</html>

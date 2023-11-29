@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ subject }}</title>
+    <style>
+        body {
+            position: relative;
+        }
+        .back-arrow {
+            font-size: 24px;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            color: red;
+            padding: 10px;
+
+        }
+        .email-content {
+            margin-top: 25px;
+            font-size: 18px;
+        }
+        .draft-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .draft-button:hover {
+            background-color: #0056b3;
+        }
+        /* Additional styles */
+    </style>
+</head>
+<body>
+    <!-- Back arrow to go to the previous page -->
+    <div class="back-arrow" onclick="window.history.back();">&#x2190; Back</div>
+    <div class="email-content">
+        <!-- Your email content here -->
+        <p>{{ body | safe }}</p>
+        <p>Sending to: {{ recipient_email }}</p>
+
+        <form action="/send-email" method="post">
+            <input type="hidden" name="recipient_email" value="{{ recipient_email }}">
+            <input type="hidden" name="subject" value="{{ subject }}">
+            <input type="hidden" name="body" value="{{ body | safe }}">
+            <button type="submit" class="draft-button">Send Email</button>
+        </form>
+        </form>
+    </div>
+    <!-- Additional content or scripts if needed -->
+</body>
+</html>
