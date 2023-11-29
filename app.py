@@ -177,7 +177,7 @@ def filter_by_category():
     # Render the template with the filtered properties and the title
     return render_template('contact_table.html', properties=properties, title=title)
 
-# dataframes fixed
+# dataframes fi
 
 @app.route('/check-occupier', methods=['POST'])
 def check_occupier():

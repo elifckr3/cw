@@ -46,6 +46,7 @@
     <table>
         <thead>
             <tr>
+                <th>Select</th>
                 <th>Action</th>
                 <th>Property Link</th>
                 <th>Owner Profile Link</th>
@@ -61,8 +62,12 @@
         <tbody>
             {% for property in properties %}
             <tr>
+                 <td>
+
+                <input type="checkbox" name="selected" value="{{ property['id'] | default(property['contact_email_1']) }}">
+            </td>
                 <td>
-                    <!-- Wrapping the button in a form to submit the request -->
+
                     <form action="{{ url_for('create_email') }}" method="post">
                         <input type="hidden" name="address" value="{{ property['address_full'] }}">
                         <input type="hidden" name="full_name" value="{{ property['contact_name'] }}">
