@@ -5,89 +5,98 @@
     <title>{{ subject }}</title>
     <style>
         body {
-            position: relative;
             font-family: Arial, sans-serif;
+            position: relative;
         }
         .back-arrow {
             font-size: 24px;
             cursor: pointer;
             color: red;
             padding: 10px;
+            display: block;
+            margin-bottom: 20px;
         }
         .email-content {
-            margin-top: 25px;
-            font-size: 18px;
-        }
-        .draft-button, .edit-button {
-            padding: 10px 20px;
             margin-top: 20px;
+        }
+        .email-content textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+        }
+        .button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            margin-right: 5px;
             border: none;
             cursor: pointer;
         }
-        .draft-button {
-            background-color: #007bff;
-            color: white;
-        }
-        .draft-button:hover {
-            background-color: #0056b3;
-        }
-        .edit-button {
+        .save-button {
             background-color: #28a745;
             color: white;
         }
-        .edit-button:hover {
-            background-color: #218838;
+        .edit-button {
+            background-color: #ffc107;
+            color: black;
         }
-        textarea {
-            width: 100%;
-            height: 200px;
-            font-family: Arial, sans-serif;
-            font-size: 18px;
-            margin-top: 10px;
+        .send-button {
+            background-color: #007bff;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <!-- Back arrow to go to the previous page -->
-    <div class="back-arrow" onclick="goBack();">&#x2190; Back</div>
+    <a class="back-arrow" onclick="goBack();">&#x2190; Back</a>
     <div class="email-content">
-        <!-- Email content that can be edited -->
-        <textarea id="emailBody" style="display: none;">{{ body }}</textarea>
-        <div id="emailBodyText">{{ body | safe }}</div>
         <p>Sending to: {{ recipient_email }}</p>
+        <div id="emailBodyText">{{ body | safe }}</div>
+        <textarea id="emailBody" style="display: none;">{{ body }}</textarea>
+        <button id="editButton" class="button edit-button" onclick="toggleEdit(true)">Edit</button>
+        <button id="saveButton" class="button save-button" style="display: none;" onclick="toggleEdit(false)">Save</button>
         <!-- Form for sending email -->
         <form id="sendEmailForm" action="/send-email" method="post">
             <input type="hidden" name="recipient_email" value="{{ recipient_email }}">
             <input type="hidden" name="subject" value="{{ subject }}">
             <input type="hidden" name="body" id="hiddenBody" value="{{ body | safe }}">
-            <button type="button" class="edit-button" onclick="toggleEdit()">Edit</button>
-            <button type="submit" class="draft-button">Send Email</button>
+            <button type="submit" class="button send-button">Send Email</button>
         </form>
     </div>
+
     <script>
         function goBack() {
             window.history.back();
         }
 
-        function toggleEdit() {
+        function toggleEdit(editMode) {
             var emailBody = document.getElementById('emailBody');
             var emailBodyText = document.getElementById('emailBodyText');
+            var editButton = document.getElementById('editButton');
+            var saveButton = document.getElementById('saveButton');
             var hiddenBody = document.getElementById('hiddenBody');
 
-            if (emailBody.style.display === "none") {
-                emailBody.style.display = "block";
-                emailBodyText.style.display = "none";
+            if (editMode) {
+                emailBody.style.display = 'block';
+                emailBodyText.style.display = 'none';
+                editButton.style.display = 'none';
+                saveButton.style.display = 'inline-block';
+                emailBody.value = emailBodyText.innerHTML;
             } else {
-                emailBody.style.display = "none";
-                emailBodyText.style.display = "block";
+                emailBody.style.display = 'none';
+                emailBodyText.style.display = 'block';
+                editButton.style.display = 'inline-block';
+                saveButton.style.display = 'none';
                 emailBodyText.innerHTML = emailBody.value;
-                hiddenBody.value = emailBody.value;
+                hiddenBody.value = emailBody.value; // Update the hidden input to ensure the edited content is sent
             }
         }
 
-        document.getElementById('sendEmailForm').addEventListener('submit', function() {
-            var emailBody = document.getElementById('emailBody').value;
-            document.getElementById('hiddenBody').value = emailBody; // Update the hidden input to ensure the edited content is sent
+        document.getElementById('sendEmailForm').addEventListener('submit', function(event) {
+            var emailBody = document.getElementById('emailBody');
+            var hiddenBody = document.getElementById('hiddenBody');
+            if (emailBody.style.display !== 'none') {
+                // If in edit mode, update the body before sending
+                hiddenBody.value = emailBody.value;
+            }
         });
     </script>
 </body>
