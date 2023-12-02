@@ -43,10 +43,12 @@
     <!-- The heading is dynamically set based on the 'title' variable -->
     <h1>{{ title }}</h1>
     <a onclick="history.back()" class="back-arrow">←</a>
-    <div>
+  <div>
     <button type="button" onclick="selectAll()">Select All</button>
     <button type="button" onclick="unselectAll()">Unselect All</button>
+    <button id="createEmailForAllButton" onclick="createEmailForAll()" style="display:none;">Create Email for Selected</button>
 </div>
+
 
     <table>
         <thead>
@@ -69,7 +71,8 @@
             <tr>
                  <td>
 
-            <input type="checkbox" name="selected" value="{{ property['id'] | default(property['contact_email_1']) }}">
+          <input type="checkbox" name="selected" value="{{ property['id'] | default(property['contact_email_1']) }}" onclick="checkSelection();">
+
 
 
             </td>
@@ -96,25 +99,69 @@
         </tbody>
     </table>
   <script>
+
+     function checkSelection() {
+  const checkboxes = document.getElementsByName('selected');
+  const createEmailForAllButton = document.getElementById('createEmailForAllButton');
+  let anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+  // Show the button if any checkboxes are checked
+  createEmailForAllButton.style.display = anyChecked ? 'block' : 'none';
+}
+
+
+
         function goBack() {
           window.history.back();
         }
 
-    function selectAll() {
-        // This function will iterate over all checkboxes and check them
-        var checkboxes = document.getElementsByName('selected'); // Use the name 'selected' to match the HTML
-        for(var i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = true;
-        }
-    }
 
-    function unselectAll() {
-        // This function will iterate over all checkboxes and uncheck them
-        var checkboxes = document.getElementsByName('selected'); // Use the name 'selected' to match the HTML
-        for(var i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = false;
-        }
-    }
+ function selectAll() {
+  var checkboxes = document.getElementsByName('selected');
+  for (var i = 0; i < checkboxes.length; i++) {
+    checkboxes[i].checked = true;
+  }
+  checkSelection(); // Corrected function name here
+}
+
+function unselectAll() {
+  var checkboxes = document.getElementsByName('selected');
+  for (var i = 0; i < checkboxes.length; i++) {
+    checkboxes[i].checked = false;
+  }
+  checkSelection(); // Corrected function name here
+}
+
+
+
+function createEmailForAll() {
+  // Get all checked checkboxes
+  const selectedCheckboxes = document.querySelectorAll('input[name="selected"]:checked');
+  if (selectedCheckboxes.length === 0) {
+    // No checkboxes selected
+    alert('Please select at least one contact.');
+    return;
+  }
+
+  // Create a form element to send the data
+  const form = document.createElement('form');
+  form.method = 'post';
+  form.action = '/create-email-for-all'; // The Flask route that will handle this request
+
+  // Append checkboxes as form fields
+  selectedCheckboxes.forEach((checkbox, index) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = `contact_${index}`;
+    input.value = checkbox.value; // Assuming the checkbox's value contains the contact's email or ID
+    form.appendChild(input);
+  });
+
+  // Append the form to the document and submit it
+  document.body.appendChild(form);
+  form.submit();
+}
+
     </script>
 </body>
 </html>

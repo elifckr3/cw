@@ -229,6 +229,21 @@ def create_email():
     return render_template('email_template.html', recipient_email=recipient_email, body=body, subject=subject)
 
 
+@app.route('/create-email-for-all', methods=['POST'])
+def create_email_for_all():
+    # Retrieve selected contact information from the form data
+    selected_contacts = request.form.getlist('selected')  # This will be a list of selected contact IDs or emails
+
+    # You can now use the selected_contacts list to fetch more information about the contacts
+    # and generate an email template with that information
+
+    # For the sake of the example, we're just passing placeholder values to the template
+    return render_template('email_template.html',
+                           recipient_email='Email',
+                           body='Your email content with placeholders for multiple recipients',
+                           subject='Your subject')
+
+
 # Define the cleanup function
 def cleanup_temporary_dataframes():
     files = glob.glob('dataframes/*.pkl')
