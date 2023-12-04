@@ -4,6 +4,8 @@ import dotenv
 import pandas as pd
 import requests
 import time
+import atexit
+import glob
 
 import os
 from flask import Flask, request, render_template, jsonify, redirect, url_for, session
@@ -105,7 +107,7 @@ def upload_file():
             df['contact_category'] = df['contact_title'].apply(categorize_title)
 
             # Create a list of unique categories for the dropdown menu
-            categories = sorted(df['contact_category'].astype(str).unique())
+            categories = ['VIEW ALL'] + sorted(df['contact_category'].astype(str).unique())
 
             # Save the DataFrame to a temporary file
             timestamp = int(time.time())
@@ -175,6 +177,7 @@ def filter_by_category():
     # Render the template with the filtered properties and the title
     return render_template('contact_table.html', properties=properties, title=title)
 
+# dataframes fi
 
 @app.route('/check-occupier', methods=['POST'])
 def check_occupier():
@@ -207,24 +210,68 @@ def list_owner_principals():
 
 @app.route('/create-email', methods=['POST'])
 def create_email():
-    # Retrieve address and full name from form data
-    full_address = request.form.get('address')
-    # Split the full address by comma and take the first part (street address)
-    street_address = full_address.split(',')[0] if full_address else 'Address not provided'
-    recipient_email = request.form.get('contact_email')
+    # Retrieve address, name, and email from form data
+    # Assuming 'address_line_1' is the form data for just the first line of the address
+    address_line_1 = request.form.get('address_line_1')
     full_name = request.form.get('full_name')
+    recipient_email = request.form.get('contact_email')
+
+    # Split full_name to get the first name for a more personalized email greeting
     first_name = full_name.split()[0] if full_name else 'Valued Customer'
-    subject = f"Potential Offer for {street_address}"
+
+    # Define the subject of the email
+    subject = f"Potential Offer for {address_line_1}"
+
     body = f"""
     {first_name}- 
 
-    I am reaching out to you about your building at {street_address}. Based on my research, it looks like you own and operate your facility. Would you be willing to look at an unsolicited offer to purchase your building, either with you leaving, or by monetizing the asset now and leasing it back?
-
-    If so, can I give you a 5-minute call just to see what is important to you so I can present an offer? Thanks in advance.
+    I am reaching out to you about your property at {address_line_1}. Based on my research, it appears that you are the owner. Would you be open to considering an unsolicited offer to purchase your property? If so, can I give you a 5-minute call just to see what is important to you so I can present an offer? 
+    Thanks in advance.
     """
 
-    return render_template('email_template.html', recipient_email=recipient_email, body=body, subject=subject)
+    # Render the email_template.html with the specific data for the contact
+    return render_template('email_template.html',
+                           recipient_email=recipient_email,
+                           full_name=full_name,
+                           full_address=address_line_1,  # Now using address_line_1 here
+                           subject=subject,
+                           body=body)
 
+
+
+@app.route('/create-email-for-all', methods=['POST'])
+def create_email_for_all():
+    # ... logic to handle the incoming data ...
+
+    # Instead of passing real recipient data, use placeholders
+    placeholder_email = "Email"
+    placeholder_content = (
+        "\"Name\"- I am reaching out to you about your building at "
+        "\"Address\". Would you be willing to look at an unsolicited offer to "
+        "purchase your building? If so, can I give you a 5-minute call just to "
+        "see what is important to you so I can present an offer? Thanks in advance."
+    )
+    placeholder_subject = "Potential Property Purchase Offer"
+
+    return render_template(
+        'email_template.html',
+        recipient_email=placeholder_email,
+        body=placeholder_content,
+        subject=placeholder_subject
+    )
+
+
+# Define the cleanup function
+def cleanup_temporary_dataframes():
+    files = glob.glob('dataframes/*.pkl')
+    for f in files:
+        try:
+            os.remove(f)
+        except OSError as e:
+            print(f"Error deleting file {f}: {e.strerror}")
+
+# Register the cleanup function to be called on app exit
+atexit.register(cleanup_temporary_dataframes)
 
 @app.route('/email')
 def email_page():
@@ -232,6 +279,6 @@ def email_page():
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(host='localhost', port=5000, debug=True)
 
 
