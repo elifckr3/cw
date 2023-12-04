@@ -241,9 +241,6 @@ def create_email():
 
 @app.route('/create-email-for-all', methods=['POST'])
 def create_email_for_all():
-    # ... logic to handle the incoming data ...
-
-    # Instead of passing real recipient data, use placeholders
     placeholder_email = "Email"
     placeholder_content = (
         "\"Name\"- I am reaching out to you about your building at "
@@ -252,16 +249,23 @@ def create_email_for_all():
         "see what is important to you so I can present an offer? Thanks in advance."
     )
     placeholder_subject = "Potential Property Purchase Offer"
+    full_name = "Name"
+    address_line_1 = "Address"
+
+    print(placeholder_email)
+    print(placeholder_content)
 
     return render_template(
         'email_template.html',
         recipient_email=placeholder_email,
         body=placeholder_content,
-        subject=placeholder_subject
+        subject=placeholder_subject,
+        full_name=full_name,
+        full_address=address_line_1,
+        is_bulk_email = True
     )
 
 
-# Define the cleanup function
 def cleanup_temporary_dataframes():
     files = glob.glob('dataframes/*.pkl')
     for f in files:
@@ -273,6 +277,7 @@ def cleanup_temporary_dataframes():
 # Register the cleanup function to be called on app exit
 atexit.register(cleanup_temporary_dataframes)
 
+
 @app.route('/email')
 def email_page():
     return "Email Page"
@@ -280,5 +285,4 @@ def email_page():
 
 if __name__ == "__main__":
     app.run(host='localhost', port=5000, debug=True)
-
 
