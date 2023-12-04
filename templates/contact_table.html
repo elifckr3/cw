@@ -80,6 +80,7 @@
 
                     <form action="{{ url_for('create_email') }}" method="post">
                         <input type="hidden" name="address" value="{{ property['address_full'] }}">
+                         <input type="hidden" name="address_line_1" value="{{ property['address_line_1'] }}">
                         <input type="hidden" name="full_name" value="{{ property['contact_name'] }}">
                          <input type="hidden" name="contact_email" value="{{ property['contact_email_1'] | default('') }}">
                         <input type="submit" value="Create Email">

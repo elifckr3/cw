@@ -48,18 +48,22 @@
 <body>
     <a class="back-arrow" onclick="goBack();">&#x2190; Back</a>
     <div class="email-content">
-        <p>Sending to: {{ recipient_email }}</p>
-        <div id="emailBodyText">{{ body | safe }}</div>
-        <textarea id="emailBody" style="display: none;">{{ body }}</textarea>
-        <button id="editButton" class="button edit-button" onclick="toggleEdit(true)">Edit</button>
-        <button id="saveButton" class="button save-button" style="display: none;" onclick="toggleEdit(false)">Save</button>
-        <!-- Form for sending email -->
-        <form id="sendEmailForm" action="/send-email" method="post">
-            <input type="hidden" name="recipient_email" value="{{ recipient_email }}">
-            <input type="hidden" name="subject" value="{{ subject }}">
-            <input type="hidden" name="body" id="hiddenBody" value="{{ body | safe }}">
-            <button type="submit" class="button send-button">Send Email</button>
-        </form>
+       <p>Sending to: {{ recipient_email }}</p>
+
+        <h5>{{ subject }}</h5>
+       <p>
+           {{ full_name }} - I am reaching out to you about your building at {{ full_address }}. Would you be willing to look at an unsolicited offer to purchase your building? If so, can I give you a 5-minute call just to see what is important to you so I can present an offer? Thanks in advance.
+       </p>
+       <textarea id="emailBody" style="display: none;">{{ body }}</textarea>
+       <button id="editButton" class="button edit-button" onclick="toggleEdit(true)">Edit</button>
+       <button id="saveButton" class="button save-button" style="display: none;" onclick="toggleEdit(false)">Save</button>
+       <!-- Form for sending email -->
+       <form id="sendEmailForm" action="/send-email" method="post">
+           <input type="hidden" name="recipient_email" value="{{ recipient_email }}">
+           <input type="hidden" name="subject" value="{{ subject }}">
+           <input type="hidden" name="body" id="hiddenBody" value="{{ body | safe }}">
+           <button type="submit" class="button send-button">Send Email</button>
+       </form>
     </div>
 
     <script>
@@ -69,23 +73,20 @@
 
         function toggleEdit(editMode) {
             var emailBody = document.getElementById('emailBody');
-            var emailBodyText = document.getElementById('emailBodyText');
             var editButton = document.getElementById('editButton');
             var saveButton = document.getElementById('saveButton');
             var hiddenBody = document.getElementById('hiddenBody');
 
             if (editMode) {
                 emailBody.style.display = 'block';
-                emailBodyText.style.display = 'none';
                 editButton.style.display = 'none';
                 saveButton.style.display = 'inline-block';
-                emailBody.value = emailBodyText.innerHTML;
+                emailBody.value = document.querySelector('.email-content p').innerText;
             } else {
                 emailBody.style.display = 'none';
-                emailBodyText.style.display = 'block';
                 editButton.style.display = 'inline-block';
                 saveButton.style.display = 'none';
-                emailBodyText.innerHTML = emailBody.value;
+                document.querySelector('.email-content p').innerText = emailBody.value;
                 hiddenBody.value = emailBody.value; // Update the hidden input to ensure the edited content is sent
             }
         }

@@ -210,38 +210,55 @@ def list_owner_principals():
 
 @app.route('/create-email', methods=['POST'])
 def create_email():
-    # Retrieve address and full name from form data
-    full_address = request.form.get('address')
-    # Split the full address by comma and take the first part (street address)
-    street_address = full_address.split(',')[0] if full_address else 'Address not provided'
-    recipient_email = request.form.get('contact_email')
+    # Retrieve address, name, and email from form data
+    # Assuming 'address_line_1' is the form data for just the first line of the address
+    address_line_1 = request.form.get('address_line_1')
     full_name = request.form.get('full_name')
+    recipient_email = request.form.get('contact_email')
+
+    # Split full_name to get the first name for a more personalized email greeting
     first_name = full_name.split()[0] if full_name else 'Valued Customer'
-    subject = f"Potential Offer for {street_address}"
+
+    # Define the subject of the email
+    subject = f"Potential Offer for {address_line_1}"
+
     body = f"""
     {first_name}- 
 
-    I am reaching out to you about your building at {street_address}. Based on my research, it looks like you own and operate your facility. Would you be willing to look at an unsolicited offer to purchase your building, either with you leaving, or by monetizing the asset now and leasing it back?
-
-    If so, can I give you a 5-minute call just to see what is important to you so I can present an offer? Thanks in advance.
+    I am reaching out to you about your property at {address_line_1}. Based on my research, it appears that you are the owner. Would you be open to considering an unsolicited offer to purchase your property? If so, can I give you a 5-minute call just to see what is important to you so I can present an offer? 
+    Thanks in advance.
     """
 
-    return render_template('email_template.html', recipient_email=recipient_email, body=body, subject=subject)
+    # Render the email_template.html with the specific data for the contact
+    return render_template('email_template.html',
+                           recipient_email=recipient_email,
+                           full_name=full_name,
+                           full_address=address_line_1,  # Now using address_line_1 here
+                           subject=subject,
+                           body=body)
+
 
 
 @app.route('/create-email-for-all', methods=['POST'])
 def create_email_for_all():
-    # Retrieve selected contact information from the form data
-    selected_contacts = request.form.getlist('selected')  # This will be a list of selected contact IDs or emails
+    # ... logic to handle the incoming data ...
 
-    # You can now use the selected_contacts list to fetch more information about the contacts
-    # and generate an email template with that information
+    # Instead of passing real recipient data, use placeholders
+    placeholder_email = "Email"
+    placeholder_content = (
+        "\"Name\"- I am reaching out to you about your building at "
+        "\"Address\". Would you be willing to look at an unsolicited offer to "
+        "purchase your building? If so, can I give you a 5-minute call just to "
+        "see what is important to you so I can present an offer? Thanks in advance."
+    )
+    placeholder_subject = "Potential Property Purchase Offer"
 
-    # For the sake of the example, we're just passing placeholder values to the template
-    return render_template('email_template.html',
-                           recipient_email='Email',
-                           body='Your email content with placeholders for multiple recipients',
-                           subject='Your subject')
+    return render_template(
+        'email_template.html',
+        recipient_email=placeholder_email,
+        body=placeholder_content,
+        subject=placeholder_subject
+    )
 
 
 # Define the cleanup function
