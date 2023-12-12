@@ -70,25 +70,29 @@
             window.history.back();
         }
 
-        function toggleEdit(editMode) {
-            var emailBody = document.getElementById('emailBody');
-            var editButton = document.getElementById('editButton');
-            var saveButton = document.getElementById('saveButton');
-            var hiddenBody = document.getElementById('hiddenBody');
+     function toggleEdit(editMode) {
+    var emailBody = document.getElementById('emailBody');
+    var emailContentParagraphs = document.querySelectorAll('.email-content p');
+    var editButton = document.getElementById('editButton');
+    var saveButton = document.getElementById('saveButton');
+    var hiddenBody = document.getElementById('hiddenBody');
 
-            if (editMode) {
-                emailBody.style.display = 'block';
-                editButton.style.display = 'none';
-                saveButton.style.display = 'inline-block';
-                emailBody.value = document.querySelector('.email-content p').innerText;
-            } else {
-                emailBody.style.display = 'none';
-                editButton.style.display = 'inline-block';
-                saveButton.style.display = 'none';
-                document.querySelector('.email-content p').innerText = emailBody.value;
-                hiddenBody.value = emailBody.value; // Update the hidden input to ensure the edited content is sent
-            }
-        }
+    if (editMode) {
+        emailBody.style.display = 'block'; // Show the textarea
+        emailContentParagraphs[1].style.display = 'none'; // Hide the second paragraph
+        editButton.style.display = 'none';
+        saveButton.style.display = 'inline-block';
+        emailBody.value = emailContentParagraphs[1].innerText;
+    } else {
+        emailBody.style.display = 'none'; // Hide the textarea
+        emailContentParagraphs[1].style.display = 'block'; // Show the second paragraph
+        editButton.style.display = 'inline-block';
+        saveButton.style.display = 'none';
+        emailContentParagraphs[1].innerText = emailBody.value; // Update the paragraph text
+        hiddenBody.value = emailBody.value; // Update the hidden input to ensure the edited content is sent
+    }
+}
+
 
         document.getElementById('sendEmailForm').addEventListener('submit', function(event) {
             var emailBody = document.getElementById('emailBody');

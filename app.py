@@ -252,9 +252,6 @@ def create_email_for_all():
     full_name = "Name"
     address_line_1 = "Address"
 
-    print(placeholder_email)
-    print(placeholder_content)
-
     return render_template(
         'email_template.html',
         recipient_email=placeholder_email,
@@ -264,6 +261,7 @@ def create_email_for_all():
         full_address=address_line_1,
         is_bulk_email = True
     )
+
 
 
 def cleanup_temporary_dataframes():
@@ -285,4 +283,3 @@ def email_page():
 
 if __name__ == "__main__":
     app.run(host='localhost', port=5000, debug=True)
-

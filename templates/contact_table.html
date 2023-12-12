@@ -1,34 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <!-- The title is dynamically set based on the 'title' variable -->
     <title>{{ title }}</title>
     <style>
         table {
-            border-collapse: collapse; /* This ensures that the border is single */
+            border-collapse: collapse;
+            /* This ensures that the border is single */
             width: 100%;
         }
-        th, td {
-            border: 1px solid black; /* This sets a single line border for each cell */
+
+        th,
+        td {
+            border: 1px solid black;
+            /* This sets a single line border for each cell */
             padding: 8px;
             text-align: left;
         }
+
         /* Additional styles can be added here */
         .email-button {
             display: block;
             padding: 5px 10px;
             margin: auto;
-            background-color: #4CAF50; /* Green background */
-            color: white; /* White text */
+            background-color: #4CAF50;
+            /* Green background */
+            color: white;
+            /* White text */
             border: none;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
         }
+
         .email-button:hover {
-            background-color: #45a049; /* Darker green on hover */
+            background-color: #45a049;
+            /* Darker green on hover */
         }
+
         .back-arrow {
             font-size: 34px;
             cursor: pointer;
@@ -39,16 +50,16 @@
         }
     </style>
 </head>
+
 <body>
     <!-- The heading is dynamically set based on the 'title' variable -->
     <h1>{{ title }}</h1>
     <a onclick="history.back()" class="back-arrow">←</a>
-  <div>
-    <button type="button" onclick="selectAll()">Select All</button>
-    <button type="button" onclick="unselectAll()">Unselect All</button>
-    <button id="createEmailForAllButton" onclick="createEmailForAll()" style="display:none;">Create Email for Selected</button>
-</div>
-
+    <div>
+        <button type="button" onclick="selectAll()">Select All</button>
+        <button type="button" onclick="unselectAll()">Unselect All</button>
+         <button id="createEmailForAllButton" onclick="createEmailForAll()" style="display:none;">Create Email for Selected</button>
+    </div>
 
     <table>
         <thead>
@@ -69,73 +80,70 @@
         <tbody>
             {% for property in properties %}
             <tr>
-                 <td>
-
-          <input type="checkbox" name="selected" value="{{ property['id'] | default(property['contact_email_1']) }}" onclick="checkSelection();">
-
-
-
-            </td>
                 <td>
-
+                    <input type="checkbox" name="selected"
+                        value="{{ property['id'] | default(property['contact_email_1']) }}" onclick="checkSelection();">
+                </td>
+                <td>
                     <form action="{{ url_for('create_email') }}" method="post">
                         <input type="hidden" name="address" value="{{ property['address_full'] }}">
-                         <input type="hidden" name="address_line_1" value="{{ property['address_line_1'] }}">
+                        <input type="hidden" name="address_line_1" value="{{ property['address_line_1'] }}">
                         <input type="hidden" name="full_name" value="{{ property['contact_name'] }}">
-                         <input type="hidden" name="contact_email" value="{{ property['contact_email_1'] | default('') }}">
+                        <input type="hidden" name="contact_email"
+                            value="{{ property['contact_email_1'] | default('') }}">
                         <input type="submit" value="Create Email">
                     </form>
                 </td>
                 <td><a href="{{ property['property_link'] }}">Property Link</a></td>
                 <td><a href="{{ property['owner_profile_link'] }}">Profile Link</a></td>
-                <td>{{ property['address_full'] }}</td>
+                <td class="address">{{ property['address_full'] }}</td>
                 <td>{{ property['property_type'] }}</td>
-                <td>{{ property['contact_name'] }}</td>
+                <td class="name">{{ property['contact_name'] }}</td>
                 <td>{{ property['reported_mailing_address_full'] | default('N/A') }}</td>
                 <td>{{ property['contact_title'] }}</td>
                 <td>{{ property['contact_phone_1'] | default('N/A') }}</td>
-                <td>{{ property['contact_email_1'] | default('N/A') }}</td>
+                <td class="email">{{ property['contact_email_1'] | default('N/A') }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-  <script>
 
-     function checkSelection() {
-  const checkboxes = document.getElementsByName('selected');
-  const createEmailForAllButton = document.getElementById('createEmailForAllButton');
-  let anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+    <script>
 
-  // Show the button if any checkboxes are checked
-  createEmailForAllButton.style.display = anyChecked ? 'block' : 'none';
-}
+        function checkSelection() {
+            const checkboxes = document.getElementsByName('selected');
+            const createEmailForAllButton = document.getElementById('createEmailForAllButton');
+            let anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+            // Show the button if any checkboxes are checked
+            createEmailForAllButton.style.display = anyChecked ? 'block' : 'none';
+        }
 
 
 
         function goBack() {
-          window.history.back();
+            window.history.back();
         }
 
 
- function selectAll() {
-  var checkboxes = document.getElementsByName('selected');
-  for (var i = 0; i < checkboxes.length; i++) {
-    checkboxes[i].checked = true;
-  }
-  checkSelection(); // Corrected function name here
-}
+        function selectAll() {
+            var checkboxes = document.getElementsByName('selected');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = true;
+            }
+            checkSelection(); // Corrected function name here
+        }
 
-function unselectAll() {
-  var checkboxes = document.getElementsByName('selected');
-  for (var i = 0; i < checkboxes.length; i++) {
-    checkboxes[i].checked = false;
-  }
-  checkSelection(); // Corrected function name here
-}
+        function unselectAll() {
+            var checkboxes = document.getElementsByName('selected');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = false;
+            }
+            checkSelection(); // Corrected function name here
+        }
 
 
-
-function createEmailForAll() {
+        function createEmailForAll() {
   // Get all checked checkboxes
   const selectedCheckboxes = document.querySelectorAll('input[name="selected"]:checked');
   if (selectedCheckboxes.length === 0) {
@@ -163,6 +171,32 @@ function createEmailForAll() {
   form.submit();
 }
 
+        function createEmailForSelected() {
+            var selectedCheckboxes = document.querySelectorAll('input[name="selected"]:checked');
+
+            var contacts = Array.from(selectedCheckboxes).map(function (checkbox) {
+                var row = checkbox.closest('tr');
+
+                // Extract the email, name, and address from the row using class names
+                var email = row.querySelector('.email').textContent;
+                var name = row.querySelector('.name').textContent;
+                var address = row.querySelector('.address').textContent;
+
+                return { email: email, name: name, address: address };
+            });
+
+            // Add your logic here to use the 'contacts' array
+            // For example, you can now use this data to create emails
+            console.log(contacts); // For demonstration purposes
+
+            // Example of what you might do next (this part is up to your application's requirements):
+            // sendEmails(contacts);
+        }
+
+
+
+
     </script>
 </body>
+
 </html>
