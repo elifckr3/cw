@@ -58,7 +58,7 @@
     <div>
         <button type="button" onclick="selectAll()">Select All</button>
         <button type="button" onclick="unselectAll()">Unselect All</button>
-         <button id="createEmailForAllButton" onclick="createEmailForAll()" style="display:none;">Create Email for Selected</button>
+         <button id="createEmailForAllButton" onclick="createEmailForSelected(); createEmailForAll();">Create Email for Selected</button>
     </div>
 
     <table>
@@ -172,6 +172,7 @@
 }
 
         function createEmailForSelected() {
+        console.log("Function called");
             var selectedCheckboxes = document.querySelectorAll('input[name="selected"]:checked');
 
             var contacts = Array.from(selectedCheckboxes).map(function (checkbox) {

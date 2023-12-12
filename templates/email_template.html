@@ -50,9 +50,7 @@
     <div class="email-content">
        <p>Sending to: {% if is_bulk_email %}<span style="color: red;">{{ recipient_email }}</span>{% else %}{{ recipient_email }}{% endif %}</p>
         <h5>Subject: {{ subject }}</h5>
-       <p>
-    {% if is_bulk_email %}<span style="color: red;">{{ full_name }}</span>{% else %}{{ full_name }}{% endif %} - I am reaching out to you about your building at {% if is_bulk_email %}<span style="color: red;">{{ full_address }}</span>{% else %}{{ full_address }}{% endif %}. Would you be willing to look at an unsolicited offer to purchase your building? If so, can I give you a 5-minute call just to see what is important to you so I can present an offer? Thanks in advance.
-</p>
+       <p>{{ body }}</p>
        <textarea id="emailBody" style="display: none;">{{ body }}</textarea>
        <button id="editButton" class="button edit-button" onclick="toggleEdit(true)">Edit</button>
        <button id="saveButton" class="button save-button" style="display: none;" onclick="toggleEdit(false)">Save</button>
