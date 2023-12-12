@@ -171,28 +171,50 @@
   form.submit();
 }
 
-        function createEmailForSelected() {
-        console.log("Function called");
-            var selectedCheckboxes = document.querySelectorAll('input[name="selected"]:checked');
 
-            var contacts = Array.from(selectedCheckboxes).map(function (checkbox) {
-                var row = checkbox.closest('tr');
 
-                // Extract the email, name, and address from the row using class names
-                var email = row.querySelector('.email').textContent;
-                var name = row.querySelector('.name').textContent;
-                var address = row.querySelector('.address').textContent;
+function createEmailForSelected() {
+    var selectedCheckboxes = document.querySelectorAll('input[name="selected"]:checked');
+    var selectedContacts = []; // Initialize an array to hold the selected contacts
 
-                return { email: email, name: name, address: address };
-            });
+    selectedCheckboxes.forEach(function (checkbox) {
+        var row = checkbox.closest('tr');
 
-            // Add your logic here to use the 'contacts' array
-            // For example, you can now use this data to create emails
-            console.log(contacts); // For demonstration purposes
+        // Use the class names to select the appropriate data from the row
+        var name = row.querySelector('.name').textContent;
+        var address = row.querySelector('.address').textContent;
+        var email = row.querySelector('.email').textContent;
 
-            // Example of what you might do next (this part is up to your application's requirements):
-            // sendEmails(contacts);
-        }
+        // Save the details in an object
+        var contactDetails = {
+            name: name,
+            address: address,
+            email: email
+        };
+
+        // Push the object into the array
+        selectedContacts.push(contactDetails);
+    });
+
+    // Now you have a list of selected contacts
+    console.log(selectedContacts);
+
+    // Send the data to the server
+    fetch('/api/send_emails', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ contacts: selectedContacts })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
 
 
 

@@ -281,5 +281,19 @@ def email_page():
     return "Email Page"
 
 
+@app.route('/api/send_emails', methods=['POST'])
+def handle_send_emails():
+    data = request.json
+    contacts = data['contacts']
+
+    # Print the contacts data to the terminal
+    print("Received contacts data:")
+    for contact in contacts:
+        print(contact)
+
+    return jsonify({'status': 'success', 'message': 'Data processed'})
+
+
+
 if __name__ == "__main__":
     app.run(host='localhost', port=5000, debug=True)
