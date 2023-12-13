@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Email Previews</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <style>
         .email-preview {
             margin-bottom: 20px; /* Adds space between email previews */
@@ -22,22 +24,56 @@
 </head>
 <body>
     <a onclick="history.back()" class="back-arrow">←</a>
+        <form id="sendEmailForm" action="/send-email" method="post">
+
+
+         </form>
     <h1>Email Previews</h1>
 
+    <button onclick="sendAllEmails()" class="button send-button">Send All Emails</button>
+
+
     <div id="emailPreviews">
-        {% for email in email_previews %}
-            <div class="email-preview">
-                <p>{{ loop.index }}. To: {{ email.to_email }}</p>
-                <p>Subject: {{ email.subject }}</p>
-                <p>{{ email.body }}</p>
-            </div>
-        {% endfor %}
-    </div>
+    {% for email in email_previews %}
+        <div class="email-preview">
+            <p class="to-email">{{ loop.index }}. To: {{ email.to_email }}</p> <!-- Added class to-email -->
+            <p class="subject">Subject: {{ email.subject }}</p> <!-- Added class subject -->
+            <p class="body">{{ email.body }}</p> <!-- Added class body -->
+        </div>
+    {% endfor %}
+</div>
+
 
      <script>
      function goBack() {
             window.history.back();
         }
+
+
+
+        function sendAllEmails() {
+        var emailData = [];
+        $('#emailPreviews .email-preview').each(function() {
+            var toEmail = $(this).find('.to-email').text().split(": ")[1];
+            var subject = $(this).find('.subject').text().split(": ")[1];
+            var body = $(this).find('.body').text();
+            emailData.push({ to_email: toEmail, subject: subject, body: body });
+        });
+
+        $.ajax({
+            url: '/api/send_emails',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ contacts: emailData }),
+            success: function(response) {
+                // Redirect to the confirmation.html page
+                window.location.href = '/confirmation';
+            },
+            error: function() {
+                alert('Error sending emails');
+            }
+        });
+    }
 
      </script>
 

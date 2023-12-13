@@ -282,29 +282,6 @@ def email_page():
     return "Email Page"
 
 
-@app.route('/api/send_emails', methods=['POST'])
-def handle_send_emails():
-    data = request.json
-    contacts = data['contacts']
-    for contact in contacts:
-        to_email = contact.get('email')
-        subject = "Your Subject Here"  # Define your subject
-        email_body = "Your Email Body Here"  # Define your email body
-
-        # # Call the email function
-        # send_outlook_email(to_email, subject, email_body)
-
-    # Print the contacts data to the terminal
-    print("Received contacts data:")
-    for contact in contacts:
-        print(contact)
-
-    return jsonify({'status': 'success', 'message': 'Data processed'})
-
-
-from flask import request, render_template, jsonify
-
-
 @app.route('/preview-emails', methods=['POST'])
 def preview_emails():
     data = request.get_json()
@@ -345,6 +322,24 @@ def render_email_previews():
 
     # Render the email previews page with the previews
     return render_template('email_previews.html', email_previews=email_previews)
+
+
+@app.route('/api/send_emails', methods=['POST'])
+def handle_send_emails():
+    data = request.json
+    contacts = data['contacts']
+    for contact in contacts:
+        response = send_outlook_email(contact['to_email'], contact['subject'], contact['body'])
+        if response != "Email sent successfully!":
+            # You may want to handle failed email attempts here
+            print(f"Failed to send email to {contact['to_email']}")
+    return jsonify({'status': 'success', 'message': 'Emails sent successfully'})
+
+
+
+@app.route('/confirmation')
+def confirmation():
+    return render_template('confirmation.html')
 
 
 if __name__ == "__main__":
