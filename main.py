@@ -314,11 +314,13 @@ def preview_emails():
     for contact in selected_contacts:
         to_email = contact['email']
         name = contact['name']
-        address = contact['address']  # Assuming 'address' key exists in your contact data
-        subject = "Your Email Subject"
+        # Extract the address part before the first comma
+        address = contact['address'].split(',')[0] if 'address' in contact and contact['address'] else 'Unknown Address'
+
+        subject = f"Potential Offer for {address}"
         email_body = f"""
-        {name}- I am reaching out to you about your building at {address}. 
-        Would you be willing to look at an unsolicited offer to purchase your building? 
+        {name} - I am reaching out to you about your property at {address}. 
+        Would you be willing to look at an unsolicited offer to purchase your property? 
         If so, can I give you a 5-minute call just to see what is important to you so I can present an offer? 
         Thanks in advance.
         """
