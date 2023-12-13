@@ -143,64 +143,51 @@
         }
 
 
-        function createEmailForAll() {
-  // Get all checked checkboxes
-  const selectedCheckboxes = document.querySelectorAll('input[name="selected"]:checked');
-  if (selectedCheckboxes.length === 0) {
-    // No checkboxes selected
-    alert('Please select at least one contact.');
-    return;
-  }
+function createEmailForAll() {
+    const selectedCheckboxes = document.querySelectorAll('input[name="selected"]:checked');
+    if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one contact.');
+        return;
+    }
 
-  // Create a form element to send the data
-  const form = document.createElement('form');
-  form.method = 'post';
-  form.action = '/create-email-for-all'; // The Flask route that will handle this request
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = '/preview-emails'; // Changed to preview-emails route
 
-  // Append checkboxes as form fields
-  selectedCheckboxes.forEach((checkbox, index) => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = `contact_${index}`;
-    input.value = checkbox.value; // Assuming the checkbox's value contains the contact's email or ID
-    form.appendChild(input);
-  });
+    selectedCheckboxes.forEach((checkbox, index) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = `contact_${index}`;
+        input.value = checkbox.value; // Assuming this contains the contact's email or ID
+        form.appendChild(input);
+    });
 
-  // Append the form to the document and submit it
-  document.body.appendChild(form);
-  form.submit();
+    document.body.appendChild(form);
+    form.submit();
 }
 
 
 
 function createEmailForSelected() {
     var selectedCheckboxes = document.querySelectorAll('input[name="selected"]:checked');
-    var selectedContacts = []; // Initialize an array to hold the selected contacts
+    var selectedContacts = [];
 
     selectedCheckboxes.forEach(function (checkbox) {
         var row = checkbox.closest('tr');
-
-        // Use the class names to select the appropriate data from the row
         var name = row.querySelector('.name').textContent;
         var address = row.querySelector('.address').textContent;
         var email = row.querySelector('.email').textContent;
 
-        // Save the details in an object
-        var contactDetails = {
-            name: name,
-            address: address,
-            email: email
-        };
-
-        // Push the object into the array
+        var contactDetails = { name: name, address: address, email: email };
         selectedContacts.push(contactDetails);
     });
 
-    // Now you have a list of selected contacts
-    console.log(selectedContacts);
+     if (selectedContacts.length === 0) {
+        alert('Please select at least one contact.');
+        return;
+    }
 
-    // Send the data to the server
-    fetch('/api/send_emails', {
+    fetch('/preview-emails', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -209,12 +196,19 @@ function createEmailForSelected() {
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Success:', data);
+        if (data.success) {
+            // Redirect to the page that will display the email previews
+            window.location.href = data.redirect;
+        } else {
+            // Handle the failure case
+            alert('Failed to generate email previews.');
+        }
     })
     .catch((error) => {
         console.error('Error:', error);
     });
 }
+
 
 
 

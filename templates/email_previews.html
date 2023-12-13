@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Previews</title>
+    <style>
+        .email-preview {
+            margin-bottom: 20px; /* Adds space between email previews */
+            padding: 10px;
+            border-bottom: 1px solid #ccc; /* Adds a line between emails */
+        }
+
+         .back-arrow {
+            font-size: 34px;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 5px 10px;
+            margin-bottom: 10px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <a onclick="history.back()" class="back-arrow">←</a>
+    <h1>Email Previews</h1>
+
+    <div id="emailPreviews">
+        {% for email in email_previews %}
+            <div class="email-preview">
+                <p>{{ loop.index }}. To: {{ email.to_email }}</p>
+                <p>Subject: {{ email.subject }}</p>
+                <p>{{ email.body }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+     <script>
+     function goBack() {
+            window.history.back();
+        }
+
+     </script>
+
+</body>
+</html>

@@ -21,6 +21,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 df = None
+app.secret_key = os.urandom(24)
 
 app.logger.setLevel(logging.INFO)
 
@@ -285,6 +286,13 @@ def email_page():
 def handle_send_emails():
     data = request.json
     contacts = data['contacts']
+    for contact in contacts:
+        to_email = contact.get('email')
+        subject = "Your Subject Here"  # Define your subject
+        email_body = "Your Email Body Here"  # Define your email body
+
+        # # Call the email function
+        # send_outlook_email(to_email, subject, email_body)
 
     # Print the contacts data to the terminal
     print("Received contacts data:")
@@ -293,6 +301,48 @@ def handle_send_emails():
 
     return jsonify({'status': 'success', 'message': 'Data processed'})
 
+
+from flask import request, render_template, jsonify
+
+
+@app.route('/preview-emails', methods=['POST'])
+def preview_emails():
+    data = request.get_json()
+    selected_contacts = data['contacts']
+
+    email_previews = []
+    for contact in selected_contacts:
+        to_email = contact['email']
+        name = contact['name']
+        address = contact['address']  # Assuming 'address' key exists in your contact data
+        subject = "Your Email Subject"
+        email_body = f"""
+        {name}- I am reaching out to you about your building at {address}. 
+        Would you be willing to look at an unsolicited offer to purchase your building? 
+        If so, can I give you a 5-minute call just to see what is important to you so I can present an offer? 
+        Thanks in advance.
+        """
+        email_previews.append({'to_email': to_email, 'subject': subject, 'body': email_body})
+
+    # Store the previews in the session
+    session['email_previews'] = email_previews
+
+    # Redirect to a separate route that will handle the display
+    return jsonify(success=True, redirect=url_for('render_email_previews'))
+
+
+def get_email_previews():
+    # Retrieve the email previews from the session, if available
+    return session.get('email_previews', [])
+
+
+@app.route('/render-email-previews')
+def render_email_previews():
+    # Retrieve the email previews from the session
+    email_previews = get_email_previews()
+
+    # Render the email previews page with the previews
+    return render_template('email_previews.html', email_previews=email_previews)
 
 
 if __name__ == "__main__":
