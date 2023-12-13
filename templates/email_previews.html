@@ -44,6 +44,7 @@
             <p class="to-email">{{ loop.index }}. To: {{ email.to_email }}</p> <!-- Added class to-email -->
             <p class="subject">Subject: {{ email.subject }}</p> <!-- Added class subject -->
             <p class="body">{{ email.body }}</p> <!-- Added class body -->
+             <button onclick="sendIndividualEmail(this)" class="button send-button">Send Email</button>
         </div>
     {% endfor %}
 </div>
@@ -97,6 +98,52 @@
         }
     });
 }
+
+
+function sendIndividualEmail(buttonElement) {
+    // Show the loading indicator
+    $('#loadingIndicator').show();
+
+    // Disable all buttons to prevent multiple clicks
+    $('button').prop('disabled', true);
+
+    // Get the email data from the same .email-preview div
+    var emailPreviewDiv = $(buttonElement).closest('.email-preview');
+    var toEmail = emailPreviewDiv.find('.to-email').text().split(": ")[1].trim();
+    var subject = emailPreviewDiv.find('.subject').text().split(": ")[1].trim();
+    var body = emailPreviewDiv.find('.body').text();
+
+    // Send the email
+    $.ajax({
+        url: '/api/send_email', // Make sure this route is set up in your Flask app
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ to_email: toEmail, subject: subject, body: body }),
+        success: function(response) {
+            // Hide the loading indicator
+            $('#loadingIndicator').hide();
+
+            // Re-enable all buttons
+            $('button').prop('disabled', false);
+
+            // Show a success message or handle accordingly
+            alert('Email sent successfully to ' + toEmail);
+        },
+        error: function() {
+            // Hide the loading indicator
+            $('#loadingIndicator').hide();
+
+            // Re-enable all buttons
+            $('button').prop('disabled', false);
+
+            // Show an error message or handle accordingly
+            alert('Error sending email to ' + toEmail);
+        }
+    });
+}
+
+
+
 
 
      </script>

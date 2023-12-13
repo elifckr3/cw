@@ -341,6 +341,14 @@ def handle_send_emails():
 def confirmation():
     return render_template('confirmation.html')
 
+@app.route('/api/send_email', methods=['POST'])
+def handle_send_email():
+    data = request.json
+    send_outlook_email(data['to_email'], data['subject'], data['body'])
+    # Add appropriate error handling and response
+    return jsonify({'status': 'success', 'message': 'Email sent successfully to ' + data['to_email']})
+
+
 
 if __name__ == "__main__":
     app.run(host='localhost', port=5000, debug=True)
