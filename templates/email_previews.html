@@ -4,15 +4,18 @@
     <meta charset="UTF-8">
     <title>Email Previews</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
     <style>
         .email-preview {
             margin-bottom: 20px; /* Adds space between email previews */
             padding: 10px;
             border-bottom: 1px solid #ccc; /* Adds a line between emails */
         }
-
-         .back-arrow {
+        .editable {
+            width: 100%;
+            height: 150px;
+            display: none; /* Initially hidden */
+        }
+        .back-arrow {
             font-size: 34px;
             cursor: pointer;
             text-decoration: none;
@@ -24,129 +27,98 @@
 </head>
 <body>
     <a onclick="history.back()" class="back-arrow">←</a>
-        <form id="sendEmailForm" action="/send-email" method="post">
-
-
-         </form>
     <h1>Email Previews</h1>
-
     <button onclick="sendAllEmails()" class="button send-button">Send All Emails</button>
-
-        <div id="loadingIndicator" style="display: none;">
-    <p style="color: red;">Sending emails, please wait...</p>
-    <!-- You can also add an image or a spinner gif here -->
-</div>
-
-
+    <div id="loadingIndicator" style="display: none;">
+        <p style="color: red;">Sending emails, please wait...</p>
+        <!-- You can also add an image or a spinner gif here -->
+    </div>
     <div id="emailPreviews">
     {% for email in email_previews %}
         <div class="email-preview">
-            <p class="to-email">{{ loop.index }}. To: {{ email.to_email }}</p> <!-- Added class to-email -->
-            <p class="subject">Subject: {{ email.subject }}</p> <!-- Added class subject -->
-            <p class="body">{{ email.body }}</p> <!-- Added class body -->
-             <button onclick="sendIndividualEmail(this)" class="button send-button">Send Email</button>
+            <p class="to-email">{{ loop.index }}. To: {{ email.to_email }}</p>
+            <p class="subject">Subject: {{ email.subject }}</p>
+            <div class="body">{{ email.body }}</div>
+            <textarea class="editable"></textarea>
+            <button onclick="toggleEditMode(this)">Edit</button>
+            <button onclick="sendIndividualEmail(this)" class="button send-button">Send Email</button>
         </div>
     {% endfor %}
-</div>
-
-
-     <script>
-     function goBack() {
-            window.history.back();
+    </div>
+    <script>
+        function toggleEditMode(button) {
+            var previewDiv = $(button).closest('.email-preview');
+            var textarea = previewDiv.find('.editable');
+            var bodyDiv = previewDiv.find('.body');
+            if (textarea.is(':visible')) {
+                // Save the edited text and hide the textarea
+                bodyDiv.html(textarea.val());
+                textarea.hide();
+                button.textContent = 'Edit';
+            } else {
+                // Show the textarea for editing, and fill it with the current text
+                textarea.val(bodyDiv.text());
+                textarea.show();
+                button.textContent = 'Save';
+            }
         }
 
+        function sendAllEmails() {
+            $('#loadingIndicator').show();
+            $('button').prop('disabled', true);
 
+            var emailData = [];
+            $('#emailPreviews .email-preview').each(function() {
+                var toEmail = $(this).find('.to-email').text().split(": ")[1].trim();
+                var subject = $(this).find('.subject').text().split(": ")[1].trim();
+                var body = $(this).find('.editable').is(':visible') ? $(this).find('.editable').val().trim() : $(this).find('.body').text().trim();
+                emailData.push({ to_email: toEmail, subject: subject, body: body });
+            });
 
-   function sendAllEmails() {
-    // Show the loading indicator
-    $('#loadingIndicator').show();
-
-    // Disable the button to prevent multiple clicks
-    $('button').prop('disabled', true);
-
-    var emailData = [];
-    $('#emailPreviews .email-preview').each(function() {
-        var toEmail = $(this).find('.to-email').text().split(": ")[1];
-        var subject = $(this).find('.subject').text().split(": ")[1];
-        var body = $(this).find('.body').text();
-        emailData.push({ to_email: toEmail, subject: subject, body: body });
-    });
-
-    $.ajax({
-        url: '/api/send_emails',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ contacts: emailData }),
-        success: function(response) {
-            // Hide the loading indicator
-            $('#loadingIndicator').hide();
-
-            // Re-enable the button
-            $('button').prop('disabled', false);
-
-            // Redirect to the confirmation.html page
-            window.location.href = '/confirmation';
-        },
-        error: function() {
-            // Hide the loading indicator
-            $('#loadingIndicator').hide();
-
-            // Re-enable the button
-            $('button').prop('disabled', false);
-
-            alert('Error sending emails');
+            $.ajax({
+                url: '/api/send_emails',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ contacts: emailData }),
+                success: function(response) {
+                    $('#loadingIndicator').hide();
+                    $('button').prop('disabled', false);
+                    window.location.href = '/confirmation';
+                },
+                error: function() {
+                    $('#loadingIndicator').hide();
+                    $('button').prop('disabled', false);
+                    alert('Error sending emails');
+                }
+            });
         }
-    });
-}
 
+        function sendIndividualEmail(buttonElement) {
+            $('#loadingIndicator').show();
+            $('button').prop('disabled', true);
 
-function sendIndividualEmail(buttonElement) {
-    // Show the loading indicator
-    $('#loadingIndicator').show();
+            var emailPreviewDiv = $(buttonElement).closest('.email-preview');
+            var toEmail = emailPreviewDiv.find('.to-email').text().split(": ")[1].trim();
+            var subject = emailPreviewDiv.find('.subject').text().split(": ")[1].trim();
+            var body = emailPreviewDiv.find('.editable').is(':visible') ? emailPreviewDiv.find('.editable').val().trim() : emailPreviewDiv.find('.body').text().trim();
 
-    // Disable all buttons to prevent multiple clicks
-    $('button').prop('disabled', true);
-
-    // Get the email data from the same .email-preview div
-    var emailPreviewDiv = $(buttonElement).closest('.email-preview');
-    var toEmail = emailPreviewDiv.find('.to-email').text().split(": ")[1].trim();
-    var subject = emailPreviewDiv.find('.subject').text().split(": ")[1].trim();
-    var body = emailPreviewDiv.find('.body').text();
-
-    // Send the email
-    $.ajax({
-        url: '/api/send_email', // Make sure this route is set up in your Flask app
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ to_email: toEmail, subject: subject, body: body }),
-        success: function(response) {
-            // Hide the loading indicator
-            $('#loadingIndicator').hide();
-
-            // Re-enable all buttons
-            $('button').prop('disabled', false);
-
-            // Show a success message or handle accordingly
-            alert('Email sent successfully to ' + toEmail);
-        },
-        error: function() {
-            // Hide the loading indicator
-            $('#loadingIndicator').hide();
-
-            // Re-enable all buttons
-            $('button').prop('disabled', false);
-
-            // Show an error message or handle accordingly
-            alert('Error sending email to ' + toEmail);
+            $.ajax({
+                url: '/api/send_email',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ to_email: toEmail, subject: subject, body: body }),
+                success: function(response) {
+                    $('#loadingIndicator').hide();
+                    $('button').prop('disabled', false);
+                    alert('Email sent successfully to ' + toEmail);
+                },
+                error: function() {
+                    $('#loadingIndicator').hide();
+                    $('button').prop('disabled', false);
+                    alert('Error sending email to ' + toEmail);
+                }
+            });
         }
-    });
-}
-
-
-
-
-
-     </script>
-
+    </script>
 </body>
 </html>
