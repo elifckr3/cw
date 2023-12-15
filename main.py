@@ -292,6 +292,7 @@ def preview_emails():
     for contact in selected_contacts:
         to_email = contact['email']
         name = contact['name']
+        name = name.split()[0] if name else 'Valued Customer'
         # Extract the address part before the first comma
         address = contact['address'].split(',')[0] if 'address' in contact and contact['address'] else 'Unknown Address'
 
