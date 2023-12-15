@@ -1,3 +1,4 @@
+import json
 import re
 
 import dotenv
@@ -303,12 +304,16 @@ def preview_emails():
         """
         email_previews.append({'to_email': to_email, 'subject': subject, 'body': email_body})
 
-    # Store the previews in the session
-    session['email_previews'] = email_previews
+    # Write the previews to a temporary file
+    temp_filename = f'email_previews_{int(time.time())}.json'
+    with open(os.path.join(app.config['DF_FOLDER'], temp_filename), 'w') as temp_file:
+        json.dump(email_previews, temp_file)
+
+    # Store the filename in the session
+    session['email_previews_file'] = temp_filename
 
     # Redirect to a separate route that will handle the display
     return jsonify(success=True, redirect=url_for('render_email_previews'))
-
 
 def get_email_previews():
     # Retrieve the email previews from the session, if available
@@ -317,8 +322,15 @@ def get_email_previews():
 
 @app.route('/render-email-previews')
 def render_email_previews():
-    # Retrieve the email previews from the session
-    email_previews = get_email_previews()
+    temp_filename = session.get('email_previews_file')
+
+    if not temp_filename:
+        # Handle the error - no email previews file found in the session
+        return "No email previews available."
+
+    # Read the previews from the temporary file
+    with open(os.path.join(app.config['DF_FOLDER'], temp_filename), 'r') as temp_file:
+        email_previews = json.load(temp_file)
 
     # Render the email previews page with the previews
     return render_template('email_previews.html', email_previews=email_previews)
