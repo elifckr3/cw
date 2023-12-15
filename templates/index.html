@@ -27,20 +27,20 @@
         label {
             font-size: 16px;
         }
-        #file-name-display {
-            font-weight: bold;
-            padding-left: 10px;
+         #file-name-display {
+            display: inline-block; /* Ensures the filename is displayed in line */
+            margin-left: 10px; /* Spacing between the file input and the filename */
         }
     </style>
 </head>
 <body>
     <h1>Upload a CSV File</h1>
     <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" id="upload-form">
-    <label for="file">Choose File:</label>
-    <input type="file" name="file" id="file" onchange="updateFileNameDisplay()">
-    <!-- Removed the span element -->
-    <input type="submit" value="Upload">
-</form>
+        <label for="file">Choose File:</label>
+        <input type="file" name="file" id="file">
+        <span id="file-name-display"></span> <!-- Element to display the selected file name -->
+        <input type="submit" value="Upload">
+    </form>
 
 
     <div style="margin-top: 20px;">
@@ -67,53 +67,49 @@
         </form>
     </div>
 
-    <script>
-        function toggleOwnerOccupierQuestion() {
-            var categorySelect = document.getElementById('category');
-            var ownerOccupierQuestion = document.getElementById('owner-occupier-question');
-            var selectedCategory = categorySelect.value;
+<script>
 
-            var shouldDisplayQuestion = selectedCategory === 'Owner' || selectedCategory === 'Owner/Principal';
-            ownerOccupierQuestion.style.display = shouldDisplayQuestion ? 'block' : 'none';
+    // Function to update the file name display when a file is selected
+    function updateFileNameDisplay() {
+        var fileInput = document.getElementById('file');
+        var fileNameDisplay = document.getElementById('file-name-display');
 
-            localStorage.setItem('selectedCategory', selectedCategory);
-            localStorage.setItem('ownerOccupierDisplay', shouldDisplayQuestion ? 'block' : 'none');
+        if (fileInput.files.length > 0) {
+            var fileName = fileInput.files[0].name;
+            fileNameDisplay.textContent = fileName; // Display the file name
+            localStorage.setItem('uploadedFileName', fileName); // Store the file name in localStorage
+        } else {
+            fileNameDisplay.textContent = 'No file chosen';
+            localStorage.removeItem('uploadedFileName'); // Clear the stored file name
         }
+    }
 
-        function restoreOwnerOccupierQuestion() {
-            var ownerOccupierQuestion = document.getElementById('owner-occupier-question');
-            var displayState = localStorage.getItem('ownerOccupierDisplay');
-            var selectedCategory = localStorage.getItem('selectedCategory');
+    // Attach the change event listener to the file input
+    document.getElementById('file').addEventListener('change', updateFileNameDisplay);
 
-            if (selectedCategory) {
-                document.getElementById('category').value = selectedCategory;
-                toggleOwnerOccupierQuestion(); // This will handle displaying the question if needed
-            } else if (displayState) {
-                ownerOccupierQuestion.style.display = displayState;
-            }
+    // Event listener for the form submission
+    document.getElementById('upload-form').addEventListener('submit', function (event) {
+        var fileInput = document.getElementById('file');
+        // Check if a file has been selected
+        if (fileInput.files.length === 0) {
+            event.preventDefault(); // Prevent the form submission
+            document.getElementById('file-name-display').textContent = 'No file chosen';
         }
+    });
 
-        // Restore the owner occupier question state and filename display on page load
-        document.addEventListener('DOMContentLoaded', function () {
-            restoreOwnerOccupierQuestion();
+    // Function to display the file name on page load if it's stored in localStorage
+    function displayFileNameOnLoad() {
+        var uploadedFileName = localStorage.getItem('uploadedFileName');
+        if (uploadedFileName) {
+            document.getElementById('file-name-display').textContent = uploadedFileName;
+        }
+    }
 
-            var filename = localStorage.getItem('uploadedFileName');
-            if (filename) {
-                document.getElementById('file-name-display').textContent = filename;
-            }
-        });
+    // Event listener for the DOMContentLoaded event
+    document.addEventListener('DOMContentLoaded', displayFileNameOnLoad);
+
+</script>
 
 
-
-        // Attach the event listener to the specific upload form
-        document.getElementById('upload-form').addEventListener('submit', function () {
-            var fileInput = document.getElementById('file');
-            if (fileInput.files.length === 0) {
-                // Prevent form submission if no file is selected
-                event.preventDefault();
-                document.getElementById('file-name-display').textContent = 'No file chosen';
-            }
-        });
-    </script>
 </body>
 </html>
