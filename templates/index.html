@@ -108,6 +108,19 @@
     // Event listener for the DOMContentLoaded event
     document.addEventListener('DOMContentLoaded', displayFileNameOnLoad);
 
+    function toggleOwnerOccupierQuestion() {
+    var categorySelect = document.getElementById('category');
+    var ownerOccupierQuestionDiv = document.getElementById('owner-occupier-question');
+
+    // Check if the selected category is 'Owner'
+    if (categorySelect.value === 'Owner') {
+        ownerOccupierQuestionDiv.style.display = 'block';
+    } else {
+        ownerOccupierQuestionDiv.style.display = 'none';
+    }
+}
+
+
 </script>
 
 
